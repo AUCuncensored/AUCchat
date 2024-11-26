@@ -1,10 +1,10 @@
 import './App.css';
+import { useState, useRef, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signInAnonymously } from 'firebase/auth';
-import { getFirestore, addDoc, collection, query, orderBy, limit, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, addDoc, collection, query, orderBy, limit, serverTimestamp, doc, setDoc, getDoc } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
-import { useState, useRef, useEffect } from 'react';
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -23,26 +23,137 @@ const firestore = getFirestore(app);
 
 function App() {
     const [user] = useAuthState(auth);
+    const [displayName, setDisplayName] = useState(null);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+    useEffect(() => {
+        const fetchDisplayName = async (uid) => {
+            const userDoc = await getDoc(doc(firestore, 'users', uid));
+            if (userDoc.exists()) {
+                setDisplayName(userDoc.data().displayName);
+                localStorage.setItem('displayName', userDoc.data().displayName); // Save display name to local storage
+            }
+        };
+
+        if (user) {
+            if (user.providerData.some(provider => provider.providerId === 'google.com')) {
+                setDisplayName(user.displayName);
+            } else {
+                const uid = localStorage.getItem('anonymousUserUid') || user.uid;
+                localStorage.setItem('anonymousUserUid', uid);
+                const savedName = localStorage.getItem('displayName');
+                if (savedName) {
+                    setDisplayName(savedName);
+                } else {
+                    fetchDisplayName(uid);
+                }
+            }
+        }
+    }, [user]);
+
+    const handleSignOut = async () => {
+        try {
+            await auth.signOut();
+            setIsMobileMenuOpen(false); // Close menu after sign out
+            setDisplayName(null); // Clear displayName state after signing out
+        } catch (error) {
+            console.error("Error signing out:", error);
+        }
+    };
+
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(prevState => !prevState);
+    };
+
+    const handleChangeName = () => {
+        localStorage.removeItem('displayName');
+        setDisplayName(null);
+        setIsMobileMenuOpen(false);
+    };
 
     return (
         <div className="App">
             <header className="App-header">
-                {user ? <SignOut /> : null}
+                {user && (
+                    <>
+                        <div className="desktop-signout-container">
+                            <button className="sign-out-button" onClick={handleSignOut}>
+                                Log Out
+                            </button>
+                            {auth.currentUser && !auth.currentUser.providerData.some(provider => provider.providerId === 'google.com') && (
+                                <button className="change-name-button" onClick={handleChangeName}>
+                                    Change Name
+                                </button>
+                            )}
+                        </div>
+                        <div className="mobile-menu-icon" onClick={toggleMobileMenu}>
+                            ☰
+                        </div>
+                        {isMobileMenuOpen && (
+                            <div className="dropdown-content active">
+                                <button className="mobile-signout-button" onClick={handleSignOut}>
+                                    Log Out
+                                </button>
+                                {auth.currentUser && !auth.currentUser.providerData.some(provider => provider.providerId === 'google.com') && (
+                                    <button className="change-name-button" onClick={handleChangeName}>
+                                        Change Name
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </>
+                )}
             </header>
             <section>
-                {user ? <ChatRoom /> : <SignIn />}
+                {user ? (
+                    displayName ? (
+                        <ChatRoom displayName={displayName} setDisplayName={setDisplayName} />
+                    ) : (
+                        !user.providerData.some(provider => provider.providerId === 'google.com') && (
+                            <SetDisplayName user={user} onSetDisplayName={setDisplayName} />
+                        )
+                    )
+                ) : (
+                    <SignIn />
+                )}
             </section>
-            {/* Mobile Sign Out Button */}
-            {user && <MobileSignOut />}
         </div>
     );
 }
 
-function MobileSignOut() {
+function SetDisplayName({ user, onSetDisplayName }) {
+    const [nameInput, setNameInput] = useState("");
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (nameInput.trim()) {
+            const uid = user.uid;
+            try {
+                await setDoc(doc(firestore, 'users', uid), {
+                    displayName: nameInput.trim()
+                });
+                localStorage.setItem('displayName', nameInput.trim());
+                onSetDisplayName(nameInput.trim());
+            } catch (error) {
+                console.error("Error saving display name:", error);
+            }
+        }
+    };
+
     return (
-        <button className="mobile-signout-button" onClick={() => auth.signOut()}>
-            Sign Out
-        </button>
+        <div className="set-display-name">
+            <h3>Choose a Display Name</h3>
+            <form onSubmit={handleSubmit}>
+                <input
+                    type="text"
+                    placeholder="Enter your name"
+                    value={nameInput}
+                    onChange={(e) => setNameInput(e.target.value)}
+                    required
+                />
+                <button type="submit">Set Name</button>
+            </form>
+        </div>
     );
 }
 
@@ -58,43 +169,52 @@ function SignIn() {
 
     const handleAnonymousSignIn = async () => {
         try {
-            await signInAnonymously(auth);
-            console.log("Signed in anonymously");
+            const result = await signInAnonymously(auth);
+            const uid = result.user.uid;
+            localStorage.setItem('anonymousUserUid', uid);
         } catch (error) {
             console.error("Error signing in anonymously:", error);
         }
     };
 
     return (
-        <>
-        <img src={require('./logo.png')} alt="Logo" className="logo" />
-        <div className="login-buttons-container">
-            <button onClick={signInWithGoogle}>Sign in with Google!</button>
-            <button onClick={handleAnonymousSignIn}>Sign in anonymously!</button>
+        <div className="sign-in-container">
+            <img src={require('./logo.png')} alt="Logo" className="logo" />
+            <div className="login-buttons-container">
+                <button className="login-button" onClick={signInWithGoogle}>Sign in with Google!</button>
+                <button className="login-button" onClick={handleAnonymousSignIn}>Sign in anonymously!</button>
+            </div>
         </div>
-        </>
     );
 }
 
-function SignOut() {
-    return (
-        <button className="sign-out-button" onClick={() => auth.signOut()}>
-            Sign Out
-        </button>
-    );
-}
-
-function ChatRoom() {
+function ChatRoom({ displayName }) {
     const messagesRef = collection(firestore, 'messages');
     const messagesQuery = query(messagesRef, orderBy('createdAt'), limit(25));
     const [messages] = useCollectionData(messagesQuery, { idField: 'id' });
     const [newMessage, setNewMessage] = useState("");
-    const messagesEndRef = useRef(null); // Ref to the end of messages
+    const messagesEndRef = useRef(null);
+    const textareaRef = useRef(null);
+    const [dropdownUser, setDropdownUser] = useState(null);
 
-    // Scroll to the bottom when messages change
     useEffect(() => {
+        if (messages) {
+            console.log("Fetched messages:", messages);
+        }
         scrollToBottom();
     }, [messages]);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownUser && !event.target.closest('.user-dropdown') && !event.target.closest('.profile-image')) {
+                setDropdownUser(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [dropdownUser]);
 
     const scrollToBottom = () => {
         if (messagesEndRef.current) {
@@ -105,64 +225,107 @@ function ChatRoom() {
     const sendMessage = async (e) => {
         e.preventDefault();
 
+        if (!newMessage || !newMessage.trim()) {
+            console.warn("Cannot send a blank message.");
+            return;
+        }
+
         if (!auth.currentUser) {
             console.error("User is not authenticated");
             return;
         }
 
         const { uid, photoURL } = auth.currentUser;
+        const profilePicture = photoURL || displayName.charAt(0).toUpperCase();
 
         try {
             await addDoc(messagesRef, {
                 text: newMessage,
                 createdAt: serverTimestamp(),
                 uid,
-                photoURL
+                photoURL: profilePicture,
+                displayName: displayName
             });
+
+            console.log("Message sent:", newMessage);
             setNewMessage("");
+            if (textareaRef.current) {
+                textareaRef.current.style.height = "40px";
+            }
         } catch (error) {
             console.error("Error sending message:", error);
         }
     };
 
+    const handleInputChange = (e) => {
+        const textarea = e.target;
+        textarea.style.height = "auto";
+        textarea.style.height = `${textarea.scrollHeight}px`;
+        setNewMessage(e.target.value);
+    };
+
+    const characterCount = newMessage.length;
+
+    const handleProfileClick = (user) => {
+        setDropdownUser(user);
+    };
+
     return (
         <>
             <div className="messages-container">
-                {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
-                <div ref={messagesEndRef} /> {/* Reference for scrolling */}
+                {messages && messages.map(msg => (
+                    <ChatMessage key={msg.id} message={msg} onProfileClick={() => handleProfileClick(msg)} />
+                ))}
+                <div ref={messagesEndRef} />
             </div>
             <form onSubmit={sendMessage} className="message-form">
-                <input
-                    type="text"
+                <textarea
+                    ref={textareaRef}
                     value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Message..." // Updated placeholder text
+                    onChange={handleInputChange}
+                    placeholder="Message..."
+                    maxLength="500"
+                    rows="1"
+                    className="message-input"
                 />
-                <button type="submit" className="send-button">🕊️</button> {/* Dove emoji */}
+                <button type="submit" className="send-button">🕊️</button>
             </form>
+            <div className="character-counter">{characterCount} / 500</div>
+            {dropdownUser && (
+    <div className="user-dropdown active">
+        <div className="user-dropdown-container">
+            {dropdownUser.photoURL && dropdownUser.photoURL.startsWith("http") ? (
+                <img src={dropdownUser.photoURL} alt="User" className="profile-image" />
+            ) : (
+                <span className="anonymous-image">{dropdownUser.photoURL || dropdownUser.displayName.charAt(0).toUpperCase()}</span>
+            )}
+            <p>{dropdownUser.displayName}</p>
+        </div>
+    </div>
+)}
+
         </>
     );
 }
 
-function ChatMessage(props) {
-    const { text, uid, photoURL } = props.message;
+function ChatMessage({ message, onProfileClick }) {
+    const { text, photoURL, createdAt } = message;
 
-    // Determine user display info
-    let userDisplay;
+    const userDisplay = photoURL && photoURL.startsWith("http")
+        ? <img src={photoURL} alt="User" className="profile-image" onClick={onProfileClick} />
+        : <span className="anonymous-image" onClick={onProfileClick}>{photoURL || "?"}</span>;
 
-    if (photoURL) {
-        // Logged-in user with a profile picture
-        userDisplay = <img src={photoURL} alt="User" className="profile-image" />;
-    } else {
-        // Anonymous user
-        userDisplay = (
-            <span className="anonymous-image">?</span>
-        );
-    }
+    const messageTime = createdAt
+        ? new Date(createdAt.seconds * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        : "Sending...";
 
     return (
         <div className="ChatMessage">
-            <strong>{userDisplay}</strong>: {text}
+            {userDisplay}
+            <div>
+                <span>{text}</span>
+                <span className="timestamp">{messageTime}</span>
+            </div>
         </div>
     );
 }

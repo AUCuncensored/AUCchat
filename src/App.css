@@ -1,5 +1,3 @@
-/* App.css */
-
 /* Reset some default browser styles */
 * {
   margin: 0;
@@ -18,140 +16,262 @@
   justify-content: center; /* Center content vertically */
 }
 
-/* Hide header styles */
-.App-header {
-  display: none; /* Hide header completely */
+/* Mobile menu icon for toggling dropdown */
+.mobile-menu-icon {
+  display: none;
+  font-size: 2rem;
+  cursor: pointer;
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
 }
 
-/* Mobile sign out button styles */
-.mobile-signout-button {
-  position: absolute;
-  top: 10px; /* Position at the top */
-  right: 20px; /* Position at the right */
+/* Mobile dropdown content for log out and change name buttons */
+.dropdown-content {
+  display: none; /* Initially hidden */
+  flex-direction: column;
+  align-items: flex-start;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: fixed; /* Positioned to be consistently visible */
+  top: 3.5rem;
+  right: 1rem;
+  padding: 1rem;
+  border-radius: 5px;
+  z-index: 1000;
+  width: 200px;
+}
+
+.dropdown-content.active {
+  display: flex; /* Shown when toggled by JavaScript */
+}
+
+.dropdown-content button {
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
-  padding: 5px 10px; /* Smaller padding for mobile */
+  padding: 10px;
+  margin-bottom: 10px;
   cursor: pointer;
+  width: 100%;
   transition: background-color 0.3s;
-  z-index: 1000; /* Ensure it is above other elements */
 }
 
-.mobile-signout-button:hover {
+.dropdown-content button:hover {
   background-color: #0056b3;
 }
 
-/* Button styles */
-button {
+/* Sign Out and Change Name button container for desktop */
+.desktop-signout-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  z-index: 1000;
+}
+
+/* Hide desktop buttons on mobile */
+@media screen and (max-width: 600px) {
+  .desktop-signout-container {
+    display: none;
+  }
+  .mobile-menu-icon {
+    display: block;
+  }
+}
+
+/* Change Name and Sign Out buttons for desktop */
+.sign-out-button,
+.change-name-button {
   background-color: #007bff;
-  border: none;
   color: white;
-  padding: 10px 15px;
-  margin: 5px; /* Margin will be adjusted based on media query */
-  cursor: pointer;
+  border: none;
   border-radius: 5px;
+  padding: 10px;
+  margin-top: 5px;
+  cursor: pointer;
   transition: background-color 0.3s;
 }
 
-button:hover {
+.sign-out-button:hover,
+.change-name-button:hover {
   background-color: #0056b3;
 }
 
 /* Login buttons container styles */
 .login-buttons-container {
-  display: flex; 
-  flex-direction: column; /* Default: stack elements vertically */
-  justify-content: center; 
-  align-items: center; 
-  height: 200vh; /* Full height of the viewport */
-  margin: 0; /* Remove default margin */
-  padding: 0; /* Remove default padding */
-  margin-top: -150px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10% 0;
+  width: 100%;
+  max-width: 500px;
+}
+
+/* Login buttons for desktop */
+.login-button {
+  background-color: #007bff;
+  color: white;
+  padding: 15px 50px;
+  margin: 5%;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 100%;
+}
+
+.login-button:hover {
+  background-color: #0056b3;
 }
 
 /* Logo styles */
 .logo {
-  width: 150px; /* Default width of the logo */
-  margin-bottom: 20px; /* Space between logo and buttons */
-  margin-top: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center; 
-  align-items: center; 
+  width: 60%; /* Increased width of the logo */
+  margin-bottom: 5%; /* Space between logo and buttons */
+  margin-top: 20%;
 }
 
-/* Responsive styles for desktop */
-@media (min-width: 769px) {
+/* Login buttons container styles for mobile */
+@media screen and (max-width: 600px) {
   .login-buttons-container {
-    flex-direction: column; /* Keep the logo above the buttons */
-    align-items: center; /* Center items */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .login-button {
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 15px;
   }
 
   .logo {
-    width: 300px; /* Increase the logo size on desktop */
-    margin-bottom: 40px; /* Increase space between logo and buttons */
+    width: 250px; /* Increased width of the logo */
+    margin-bottom: 20px; /* Space between logo and buttons */
+    margin-top: 50px;
   }
 
-  .login-buttons-container {
-    display: flex; /* Enable flexbox */
-    flex-direction: row; /* Change to row layout for buttons */
-    justify-content: center; /* Center buttons horizontally */
-  }
-
-  .login-buttons-container button {
-    margin: 0 10px; /* Horizontal spacing between buttons */
-    width: 200px; /* Set a fixed width for buttons */
-  }
 }
 
-/* Chat Room styles */
+/* Center the SetDisplayName component */
+.set-display-name {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+/* Set Display Name input and button styles */
+.set-display-name input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 1em;
+}
+
+.set-display-name button {
+  width: 100%;
+  padding: 10px;
+  font-size: 1em;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.set-display-name button:hover {
+  background-color: #0056b3;
+}
+
+/* Small shadow on input focus */
+.set-display-name input[type="text"]:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 150, 136, 0.2);
+  border-color: #009688;
+}
+
 section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  flex-grow: 1; /* Allow section to grow and take available space */
-  overflow: hidden; /* Prevent overflow */
+  flex-grow: 1;
+  overflow: hidden;
+  width: 100%;
 }
 
 /* Messages container */
 .messages-container {
-  flex-grow: 1; /* Allow it to take the remaining space */
-  overflow-y: auto; /* Allow scrolling of messages */
-  width: 100%; /* Full width */
-  padding: 10px; /* Padding for chat messages */
+  flex-grow: 1;
+  overflow-y: auto;
+  width: 100%;
+  padding: 10px;
 }
 
 /* Form styles */
 .message-form {
+  width: 80%;
   display: flex;
-  align-items: center; /* Align items to center */
-  margin-top: 0; /* Reduced margin to make it smaller */
-  padding: 10px; /* Padding for the form */
-  background-color: #ffffff; /* Background for form */
-  height: 70px; /* Maintain original height for more space */
+  align-items: center;
+  margin-top: 0;
+  padding: 5px;
+  background-color: #ffffff;
+  position: relative;
+  flex-direction: row;
 }
 
 /* Adjust input styles */
-input[type="text"] {
-  padding: 10px; /* Maintain padding for comfort */
+textarea {
+  padding: 5px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  flex-grow: 1; /* Allow input to take available space */
-  height: 40px; /* Original height */
-  margin-right: 5px; /* Space between input and button */
+  flex-grow: 1;
+  height: 35px;
+  width: calc(100% - 50px);
+  max-height: 100px;
+  min-height: 35px;
+  margin-right: 5px;
+  overflow-y: auto;
+  resize: none;
 }
 
 /* Send button styles */
 .send-button {
-  background: transparent; /* Make button background transparent */
-  border: none; /* Remove border */
-  color: #007bff; /* Same color as the primary button */
-  font-size: 1.5rem; /* Larger font size for the emoji */
+  background: transparent;
+  border: none;
+  color: #007bff;
+  font-size: 1.2rem;
   cursor: pointer;
-  padding: 0; /* No padding to fit better */
-  margin: 0; /* Remove margin */
-  height: 40px; /* Align with input height */
+  padding: 5px;
+  height: 35px;
+  width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Word counter styles */
+.character-counter {
+  position: fixed; /* Fix to the viewport, not any container */
+  bottom: 10px; /* 10px from the bottom of the screen */
+  right: 2%; /* 10px from the right of the screen */
+  font-size: 10px;
+  color: #888; /* Use your existing text color */
 }
 
 /* Chat message styles */
@@ -159,55 +279,135 @@ input[type="text"] {
   display: flex;
   align-items: center;
   margin: 10px 0;
+  text-align: justify;
+  word-break: break-word;
+  gap: 15px;
+  position: relative;
 }
 
 /* Profile picture styles */
 .profile-image {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  margin-right: 10px; /* Spacing from the message */
+  margin-right: 0px;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.3s ease;
 }
 
-/* Anonymous image styles */
+.profile-image:hover {
+  transform: scale(1.1);
+}
+
 .anonymous-image {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 30px;
+  align-items: center;     /* Centers content vertically */
+  justify-content: center; /* Centers content horizontally */
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background-color: #007bff; /* Same background color as profile image */
+  background-color: #007bff;
   color: white;
   font-weight: bold;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+  font-size: 1.2rem;
+  margin: 0;               /* Removes any margin that might cause offset issues */
+  box-sizing: border-box;  /* Makes sure padding and border do not affect centering */
 }
 
-/* Responsive styles */
-@media (max-width: 768px) {
-  .login-buttons-container {
-    flex-direction: column; /* Change to vertical layout */
-  }
 
-  .login-buttons-container button {
-    margin: 10px 0; /* Vertical spacing between buttons */
-    width: 100%; /* Full width on mobile */
-  }
+/* Timestamp styling for the message */
+.timestamp {
+  font-size: 0.75rem;
+  color: gray;
+  margin-left: 5px;
+  display: block;
+  text-align: right;
+}
 
+.user-dropdown {
+  position: absolute;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+  transition: all 0.4s ease-in-out;
+  text-align: center;
+  display: flex;           /* Use flexbox to align content */
+  flex-direction: column;  /* Stack content vertically */
+  align-items: center;     /* Center-align content horizontally */
+}
+
+.user-dropdown.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.user-dropdown-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;     /* Ensure content in dropdown is centered */
+  gap: 10px;               /* Add some space between profile picture and text */
+}
+
+
+/* Mobile Responsive for User Dropdown */
+@media screen and (max-width: 600px) {
   .message-form {
-    flex-direction: row; /* Keep form elements in row */
+    flex-direction: row;
+    align-items: center;
+    padding: 5px;
   }
 
-  input[type="text"] {
-    width: 80%; /* Less width for input on mobile */
+  textarea {
+    width: calc(100% - 50px);
+    max-width: calc(100% - 50px);
+    margin-bottom: 0;
   }
 
   .send-button {
-    width: 20%; /* Adjust send button width */
-    font-size: 1.5rem; /* Size of the emoji */
+    width: 40px;
+    height: 35px;
+    align-self: center;
   }
 
-  .mobile-signout-button {
-    display: block; /* Show on mobile */
-    right: 10px; /* Position at the right */
+  .send-button {
+    align-self: flex-end;
   }
+  .user-dropdown {
+    width: 90%;
+    left: 5%;
+    transform: translateY(0);
+  }
+}
+
+/* Transition to show/hide dropdown smoothly */
+.user-dropdown-transition {
+  transition: all 0.4s ease-in-out;
+}
+
+/* Button Styling in dropdown (if needed in the future) */
+.user-dropdown button {
+  background: #007bff;
+  border: none;
+  color: #fff;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+}
+
+.user-dropdown button:hover {
+  background: #0056b3;
 }
