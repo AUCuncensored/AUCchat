@@ -270,6 +270,13 @@ function ChatRoom({ displayName }) {
         setDropdownUser(user);
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault(); // Prevents adding a new line
+            sendMessage(e);
+        }
+    };
+
     return (
         <>
             <div className="messages-container">
@@ -283,6 +290,7 @@ function ChatRoom({ displayName }) {
                     ref={textareaRef}
                     value={newMessage}
                     onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
                     placeholder="Message..."
                     maxLength="500"
                     rows="1"
