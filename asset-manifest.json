@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/AUCchat/static/css/main.fe355167.css",
-    "main.js": "/AUCchat/static/js/main.b4bb9a65.js",
+    "main.js": "/AUCchat/static/js/main.638337d2.js",
     "static/js/453.84735f90.chunk.js": "/AUCchat/static/js/453.84735f90.chunk.js",
     "static/media/logo.png": "/AUCchat/static/media/logo.c057619740bd555e4d53.png",
     "index.html": "/AUCchat/index.html",
     "main.fe355167.css.map": "/AUCchat/static/css/main.fe355167.css.map",
-    "main.b4bb9a65.js.map": "/AUCchat/static/js/main.b4bb9a65.js.map",
+    "main.638337d2.js.map": "/AUCchat/static/js/main.638337d2.js.map",
     "453.84735f90.chunk.js.map": "/AUCchat/static/js/453.84735f90.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.fe355167.css",
-    "static/js/main.b4bb9a65.js"
+    "static/js/main.638337d2.js"
   ]
 }
